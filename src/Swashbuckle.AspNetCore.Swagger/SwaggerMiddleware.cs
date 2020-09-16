@@ -39,8 +39,7 @@ namespace Swashbuckle.AspNetCore.Swagger
             {
                 var swagger = await swaggerProvider.GetSwaggerAsync(
                     documentName: documentName,
-                    host: GetHostOrNullFromRequest(httpContext.Request),
-                    basePath: GetBasePathOrNullFromRequest(httpContext.Request));
+                    serverUrl: GetHostOrNullFromRequest(httpContext.Request) + "/" + GetBasePathOrEmptyFromRequest(httpContext.Request));
 
                 // One last opportunity to modify the Swagger Document - this time with request context
                 foreach (var filter in _options.PreSerializeFilters)
@@ -87,7 +86,7 @@ namespace Swashbuckle.AspNetCore.Swagger
             return hostBuilder.Uri.ToString().Trim('/');
         }
 
-        private string GetBasePathOrNullFromRequest(HttpRequest request)
+        private string GetBasePathOrEmptyFromRequest(HttpRequest request)
         {
             var pathBuilder = new StringBuilder();
 
@@ -99,7 +98,7 @@ namespace Swashbuckle.AspNetCore.Swagger
 
             return (pathBuilder.Length > 0)
                 ? pathBuilder.ToString()
-                : null;
+                : "";
         }
 
         private bool RequestingSwaggerDocument(HttpRequest request, out string documentName)

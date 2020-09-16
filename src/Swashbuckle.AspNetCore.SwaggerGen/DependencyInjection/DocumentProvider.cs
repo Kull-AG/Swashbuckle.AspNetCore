@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.ApiDescriptions
         public async Task GenerateAsync(string documentName, TextWriter writer)
         {
             // Let UnknownSwaggerDocument or other exception bubble up to caller.
-            var swagger = await _swaggerProvider.GetSwaggerAsync(documentName, host: null, basePath: null);
+            var swagger = await _swaggerProvider.GetSwaggerAsync(documentName, serverUrl: null);
             var jsonWriter = new OpenApiJsonWriter(writer);
             if (_options.SerializeAsV2)
             {

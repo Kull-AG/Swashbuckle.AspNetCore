@@ -31,7 +31,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
         }
 
 
-        private (OpenApiDocument, DocumentFilterContext) GetOpenApiWithoutFilters(string documentName, string host, string basePath)
+        private (OpenApiDocument, DocumentFilterContext) GetOpenApiWithoutFilters(string documentName, string serverUrl)
         {
             if (!_options.SwaggerDocs.TryGetValue(documentName, out OpenApiInfo info))
                 throw new UnknownSwaggerDocument(documentName, _options.SwaggerDocs.Select(d => d.Key));
@@ -46,7 +46,7 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             var swaggerDoc = new OpenApiDocument
             {
                 Info = info,
-                Servers = GenerateServers(host, basePath),
+                Servers = GenerateServers(serverUrl),
                 Paths = GeneratePaths(applicableApiDescriptions, schemaRepository),
                 Components = new OpenApiComponents
                 {
@@ -59,9 +59,9 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             return (swaggerDoc, filterContext);
         }
 
-        public OpenApiDocument GetSwagger(string documentName, string host = null, string basePath = null)
+        public OpenApiDocument GetSwagger(string documentName, string serverUrl=null)
         {
-            var (swaggerDoc, filterContext) = GetOpenApiWithoutFilters(documentName, host, basePath);
+            var (swaggerDoc, filterContext) = GetOpenApiWithoutFilters(documentName, serverUrl);
             foreach (var filter in _options.DocumentFilters)
             {
                 filter.Apply(swaggerDoc, filterContext);
@@ -70,9 +70,9 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             return swaggerDoc;
         }
 
-        public async Task<OpenApiDocument> GetSwaggerAsync(string documentName, string host = null, string basePath = null)
+        public async Task<OpenApiDocument> GetSwaggerAsync(string documentName, string serverUrl = null)
         {
-            var (swaggerDoc, filterContext) = GetOpenApiWithoutFilters(documentName, host, basePath);
+            var (swaggerDoc, filterContext) = GetOpenApiWithoutFilters(documentName, serverUrl);
             foreach (var filter in _options.DocumentFilters)
             {
                 if (filter is IAsyncDocumentFilter asyncFilter)
@@ -88,16 +88,16 @@ namespace Swashbuckle.AspNetCore.SwaggerGen
             return swaggerDoc;
         }
 
-        private IList<OpenApiServer> GenerateServers(string host, string basePath)
+        private IList<OpenApiServer> GenerateServers(string serverUrl)
         {
             if (_options.Servers.Any())
             {
                 return new List<OpenApiServer>(_options.Servers);
             }
 
-            return (host == null && basePath == null)
+            return (serverUrl == null)
                 ? new List<OpenApiServer>()
-                : new List<OpenApiServer> { new OpenApiServer { Url = $"{host}{basePath}" } };
+                : new List<OpenApiServer> { new OpenApiServer { Url = serverUrl } };
         }
 
         private OpenApiPaths GeneratePaths(IEnumerable<ApiDescription> apiDescriptions, SchemaRepository schemaRepository)

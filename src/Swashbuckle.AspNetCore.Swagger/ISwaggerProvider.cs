@@ -10,16 +10,14 @@ namespace Swashbuckle.AspNetCore.Swagger
     {
         OpenApiDocument GetSwagger(
             string documentName,
-            string host = null,
-            string basePath = null);
+            string serverUrl = null);
     }
 
     public interface IAsyncSwaggerProvider
     {
         Task<OpenApiDocument> GetSwaggerAsync(
             string documentName,
-            string host = null,
-            string basePath = null);
+            string serverUrl = null);
     }
 
     public class UnknownSwaggerDocument : InvalidOperationException
